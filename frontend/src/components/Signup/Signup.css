@@ -1,0 +1,85 @@
+/* Similar to Login.css */
+.signup-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    position: relative;
+    background-color: #f8f9fa;
+}
+
+.signup-logo {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
+
+.signup-logo img {
+    width: 100px;
+    height: auto;
+}
+
+.signup-box {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    width: 350px;
+    text-align: center;
+}
+
+.signup-box h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.signup-box p {
+    font-size: 14px;
+    color: #6c757d;
+    margin-bottom: 20px;
+}
+
+.signup-box input {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.signup-box button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+    border-radius: 5px;
+}
+
+.signup-box button:hover {
+    background-color: #0056b3;
+}
+
+.signup-message {
+    color: red;
+    margin-top: 10px;
+}
+
+.login-prompt {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.login-prompt a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.login-prompt a:hover {
+    text-decoration: underline;
+}

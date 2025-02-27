@@ -1,0 +1,87 @@
+/* Centering the login box */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full screen height */
+    position: relative;
+    background-color: #f8f9fa; /* Light background */
+}
+
+/* Positioning the logo in the top left */
+.login-logo {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
+
+.login-logo img {
+    width: 100px; /* Adjust logo size */
+    height: auto;
+}
+
+/* Styling the login box */
+.login-box {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    width: 350px;
+    text-align: center;
+}
+
+.login-box h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.login-box p {
+    font-size: 14px;
+    color: #6c757d;
+    margin-bottom: 20px;
+}
+
+.login-box input {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.login-box button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+    border-radius: 5px;
+}
+
+.login-box button:hover {
+    background-color: #0056b3;
+}
+
+.login-message {
+    color: red;
+    margin-top: 10px;
+}
+
+.signup-prompt {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.signup-prompt a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.signup-prompt a:hover {
+    text-decoration: underline;
+}
