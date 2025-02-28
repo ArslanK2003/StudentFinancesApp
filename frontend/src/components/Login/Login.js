@@ -25,31 +25,31 @@ const Login = ({ setIsAuthenticated }) => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-  
+
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-  
+
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.message || "Login failed. Please try again.");
       }
-  
+
       alert("Login successful!");
       localStorage.setItem("token", data.token);
-      localStorage.setItem("username", data.username);
+      localStorage.setItem("username", data.username); // Ensure username is being set here
       setIsAuthenticated(true);
       navigate("/dashboard");
     } catch (error) {
       console.error("Login error:", error);
       setError(error.message);
     }
-  
+
     setLoading(false);
-  };  
+};
 
   return (
     <div className="login-container">

@@ -1,0 +1,47 @@
+.add-transaction-container {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .add-transaction-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .add-transaction-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .add-transaction-form input,
+  .add-transaction-form select {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+  }
+  
+  .add-transaction-form button {
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s ease;
+  }
+  
+  .add-transaction-form button:hover {
+    background-color: #45a049;
+  }
+  
+  .add-transaction-form input::placeholder {
+    color: #999;
+  }
+  
