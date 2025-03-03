@@ -36,3 +36,9 @@
     transform: rotate(360deg);
   }
 }
+
+/* ✅ Allow scrolling on all pages */
+html, body {
+  overflow-y: auto !important; /* Force-enable scrolling */
+  height: 100%;
+}

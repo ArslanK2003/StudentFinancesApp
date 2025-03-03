@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "./Login.css"; 
-import logo from '../../img/Logo_Text.png'; 
+import logoText from "../../assets/img/Logo_Text.png";
 
 const Login = ({ setIsAuthenticated }) => {
   const [formData, setFormData] = useState({
@@ -54,7 +54,7 @@ const Login = ({ setIsAuthenticated }) => {
   return (
     <div className="login-container">
       <div className="login-logo">
-        <img src={logo} alt="SmartSpend Logo" />
+        <img src={logoText} alt="SmartSpend" className="logo-text" /> {/* ✅ Fix Image Path */}
       </div>
       <div className="login-box">
         <h2>Log in</h2>

@@ -5,7 +5,12 @@ import Signup from "./components/Signup/Signup";
 import Dashboard from "./components/Dashboard/Dashboard";
 import Transactions from "./components/Transactions/Transactions";
 import AddTransaction from "./components/Transactions/AddTransaction";
+import EditTransaction from "./components/Transactions/EditTransaction";
+import Budget from "./components/Budget/Budget"; // ✅ Import Budget Page
 import Navbar from "./components/Navbar"; // Import the new Navbar
+import Settings from "./components/Settings/Settings"; // Import Settings
+import "./index.css"; // Ensure global styles are applied
+
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("token"));
@@ -25,7 +30,10 @@ function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/transactions" element={<Transactions />} />
                 <Route path="/addtransaction" element={<AddTransaction />} />
+                <Route path="/edittransaction/:id" element={<EditTransaction />} />
                 <Route path="/" element={<Dashboard />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/budget" element={<Budget />} /> {/* ✅ Ensure this exists */}
             </Routes>
         </Router>
     );

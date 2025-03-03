@@ -1,10 +1,12 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User'); // Adjust this path as necessary to your User model
+const User = require('../models/User');
+const auth = require("../middleware/auth");
+
 const router = express.Router();
 
-
+// ✅ Signup Route
 router.post('/signup', async (req, res) => {
   const { username, email, password } = req.body;
 
@@ -34,10 +36,10 @@ router.post('/signup', async (req, res) => {
     jwt.sign(
       payload,
       process.env.JWT_SECRET,
-      { expiresIn: '24h' },  // ✅ Set JWT expiration to 24 hours
+      { expiresIn: '24h' }, // ✅ 24-hour token expiration
       (err, token) => {
-          if (err) throw err;
-          res.json({ token, username: user.username }); // Send token & username
+        if (err) throw err;
+        res.json({ token, user_id: user.id, username: user.username }); // ✅ Send `user_id` & `username`
       }
     );  
   } catch (err) {
@@ -46,39 +48,53 @@ router.post('/signup', async (req, res) => {
   }
 });
 
+// ✅ Login Route
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
   try {
-      let user = await User.findOne({ username });
-      if (!user) {
-          return res.status(400).json({ message: 'User does not exist' });
+    let user = await User.findOne({ username });
+    if (!user) {
+      return res.status(400).json({ message: 'User does not exist' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    const payload = {
+      user: {
+        id: user.id
       }
+    };
 
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-          return res.status(400).json({ message: 'Invalid credentials' });
+    jwt.sign(
+      payload,
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }, // ✅ Extend session duration
+      (err, token) => {
+        if (err) throw err;
+        res.json({ token, user_id: user.id, username: user.username }); // ✅ Send `user_id`
       }
-
-      const payload = {
-          user: {
-              id: user.id
-          }
-      };
-
-      jwt.sign(
-          payload,
-          process.env.JWT_SECRET,
-          { expiresIn: '1h' },
-          (err, token) => {
-              if (err) throw err;
-              res.json({ token, username: user.username }); // Include username in response
-          }
-      );
+    );
   } catch (err) {
-      console.error(err.message);
-      res.status(500).send('Server error');
+    console.error(err.message);
+    res.status(500).send('Server error');
   }
 });
 
+// ✅ Get User Details (Required for AI Insights)
+router.get("/me", auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password"); // Exclude password
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json({ id: user.id, username: user.username, email: user.email });
+  } catch (error) {
+    console.error("❌ Error fetching user details:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 module.exports = router;

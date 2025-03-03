@@ -1,56 +1,346 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import './Transactions.css';
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { PieChart, Pie, Tooltip, Cell, BarChart, Bar, XAxis, YAxis, Legend, ResponsiveContainer } from "recharts";
+import { saveAs } from "file-saver";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import "./Transactions.css";
 
 const Transactions = () => {
   const [transactions, setTransactions] = useState([]);
+  const [filteredTransactions, setFilteredTransactions] = useState([]);
+  const [recurringTransactions, setRecurringTransactions] = useState(new Set());
+  const [insights, setInsights] = useState(null);
+  const [userId, setUserId] = useState(localStorage.getItem("user_id") || null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedPayment, setSelectedPayment] = useState("All");
+  const [selectedTimeRange, setSelectedTimeRange] = useState("30 Days");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchTransactions(); // Fetch transactions on page load
-  }, []);
+// ✅ Fetch User ID
+useEffect(() => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    navigate("/login");
+    return;
+  }
 
-  const fetchTransactions = async () => {
-    const token = localStorage.getItem("token");
+  const fetchUserId = async () => {
+    if (!userId) {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/me`, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
 
-    if (!token) {
-      console.log("Unauthorized! Redirecting to login.");
-      navigate("/login");
-      return;
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+        const userData = await response.json();
+        localStorage.setItem("user_id", userData.id);
+        setUserId(userData.id);
+      } catch (error) {
+        console.error("❌ Error fetching user ID:", error);
+      }
     }
+  };
+  fetchUserId();
+}, [navigate, userId]);
 
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/transactions`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-      });
-
-      if (response.status === 401) {
-        console.error("🔹 Token expired. Logging out...");
-        localStorage.removeItem("token");  // ✅ Clear expired token
-        alert("Session expired. Please log in again.");
+// ✅ Fetch Transactions
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.log("❌ No token found. Redirecting to login.");
         navigate("/login");
         return;
       }
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/transactions`, {
+          headers: { "Authorization": `Bearer ${token}` },
+        });
 
-      const data = await response.json();
-      setTransactions(data || []); // ✅ Fix: Ensure transactions array is updated
+        if (response.status === 401) {
+          console.error("❌ Unauthorized! Token expired. Logging out...");
+          localStorage.removeItem("token");
+          navigate("/login");
+          return;
+        }
+
+        if (!response.ok) throw new Error("Failed to fetch transactions");
+
+        const data = await response.json();
+        setTransactions(data.transactions);
+        setFilteredTransactions(data.transactions);
+      } catch (error) {
+        console.error("❌ Error fetching transactions:", error);
+      }
+    };
+    fetchTransactions();
+  }, [navigate]);
+
+  // ✅ Detect Recurring Transactions
+  useEffect(() => {
+    const checkRecurring = () => {
+      const transactionMap = new Map();
+
+      transactions.forEach((transaction) => {
+        const key = `${transaction.category}-${transaction.amount}`;
+        const transactionMonth = new Date(transaction.date).getMonth();
+        
+        if (!transactionMap.has(key)) {
+          transactionMap.set(key, new Set());
+        }
+        transactionMap.get(key).add(transactionMonth);
+      });
+
+      const recurringSet = new Set();
+      transactionMap.forEach((months, key) => {
+        if (months.size > 1) {
+          recurringSet.add(key);
+        }
+      });
+
+      setRecurringTransactions(recurringSet);
+    };
+
+    checkRecurring();
+  }, [transactions]);
+
+  useEffect(() => {
+    if (!userId) return;
+    const fetchInsights = async () => {
+      try {
+        const response = await fetch(`http://127.0.0.1:5001/api/ml/insights?user_id=${userId}`);
+        if (!response.ok) throw new Error("Failed to fetch ML insights");
+        const data = await response.json();
+        setInsights(data);
+      } catch (error) {
+        console.error("❌ Error fetching ML insights:", error);
+      }
+    };
+    fetchInsights();
+  }, [userId]);  
+
+  
+// ✅ Apply Filters
+useEffect(() => {
+  let filtered = transactions;
+
+  // Search Filter
+  if (searchQuery.trim() !== "") {
+    filtered = filtered.filter((transaction) =>
+      transaction.description.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }
+
+  // Category Filter
+  if (selectedCategory !== "All") {
+    filtered = filtered.filter((transaction) => transaction.category === selectedCategory);
+  }
+
+  // Payment Method Filter
+  if (selectedPayment !== "All") {
+    filtered = filtered.filter((transaction) => transaction.paymentMethod === selectedPayment);
+  }
+
+  setFilteredTransactions(filtered);
+}, [searchQuery, selectedCategory, selectedPayment, transactions]); 
+
+// ✅ Export Transactions to CSV
+const exportCSV = () => {
+  const csvContent = [
+    ["Date", "Amount", "Category", "Payment Method", "Description", "Status", "Recurring"], // CSV Headers
+    ...filteredTransactions.map(transaction => [
+      new Date(transaction.date).toLocaleDateString("en-GB"),
+      `£${transaction.amount.toFixed(2)}`,
+      transaction.category,
+      transaction.paymentMethod,
+      transaction.description,
+      transaction.status,
+      recurringTransactions.has(`${transaction.category}-${transaction.amount}`) ? "Yes" : "No"
+    ])
+  ].map(e => e.join(",")).join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  saveAs(blob, "transactions.csv");
+};
+
+// ✅ Export Transactions to PDF
+const exportPDF = () => {
+  const doc = new jsPDF();
+  doc.text("Transaction Report", 14, 15);
+
+  autoTable(doc, {
+    startY: 20,
+    head: [["Date", "Amount", "Category", "Payment Method", "Description", "Status", "Recurring"]],
+    body: filteredTransactions.map(transaction => [
+      new Date(transaction.date).toLocaleDateString("en-GB"),
+      `£${transaction.amount.toFixed(2)}`,
+      transaction.category,
+      transaction.paymentMethod,
+      transaction.description,
+      transaction.status,
+      recurringTransactions.has(`${transaction.category}-${transaction.amount}`) ? "Yes" : "No"
+    ])
+  });
+
+  doc.save("transactions.pdf");
+};
+
+  // ✅ Handle Delete Transaction
+  const deleteTransaction = async (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this transaction?");
+    if (!confirmDelete) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/transactions/${id}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` },
+      });
+
+      if (!response.ok) throw new Error("Failed to delete transaction");
+
+      // ✅ Remove transaction from state after successful deletion
+      setTransactions(transactions.filter((transaction) => transaction._id !== id));
     } catch (error) {
-      console.error('❌ Error fetching transactions:', error.message);
+      console.error("❌ Error deleting transaction:", error);
     }
   };
 
-  return (
-    <div className="transaction-container">
-      <h2>Transactions</h2>
-      <Link to="/addtransaction" className="add-transaction-btn">+ Add Transaction</Link>
-      <table className="transaction-table">
+// ✅ Handle Edit Transaction (Redirect to Edit Page)
+const editTransaction = (transaction) => {
+  navigate(`/edittransaction/${transaction._id}`, { state: transaction });
+};
+
+// ✅ Filter Transactions based on selected filters
+useEffect(() => {
+  let filtered = transactions.filter((transaction) =>
+    transaction.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+    if (selectedCategory !== "All") {
+      filtered = filtered.filter((transaction) => transaction.category === selectedCategory);
+    }
+    if (selectedPayment !== "All") {
+      filtered = filtered.filter((transaction) => transaction.paymentMethod === selectedPayment);
+    }
+    setFilteredTransactions(filtered);
+  }, [transactions, searchQuery, selectedCategory, selectedPayment]);
+
+  // ✅ Fetch AI Insights
+  useEffect(() => {
+    if (!userId) return;
+
+    const fetchInsights = async () => {
+      try {
+        const response = await fetch(`http://localhost:5001/api/ml/insights?user_id=${userId}`);
+        if (!response.ok) throw new Error("Failed to fetch ML insights");
+        const data = await response.json();
+        setInsights(data);
+      } catch (error) {
+        console.error("❌ Error fetching ML insights:", error);
+      }
+    };
+
+    fetchInsights();
+  }, [userId]);
+
+  // ✅ Apply Filters
+  useEffect(() => {
+    let filtered = transactions;
+
+    // Search Filter (By Description)
+    if (searchQuery.trim() !== "") {
+      filtered = filtered.filter((transaction) =>
+        transaction.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Category Filter
+    if (selectedCategory !== "All") {
+      filtered = filtered.filter((transaction) => transaction.category === selectedCategory);
+    }
+
+    // Payment Method Filter
+    if (selectedPayment !== "All") {
+      filtered = filtered.filter((transaction) => transaction.paymentMethod === selectedPayment);
+    }
+
+    // ✅ Update the state with filtered transactions
+    setFilteredTransactions(filtered);
+  }, [searchQuery, selectedCategory, selectedPayment, transactions]); // Runs when filters change
+
+
+  // ✅ Prepare Data for Pie Chart
+  const categoryTotals = filteredTransactions.reduce((acc, transaction) => {
+    acc[transaction.category] = (acc[transaction.category] || 0) + transaction.amount;
+    return acc;
+  }, {});
+
+  const pieChartData = Object.keys(categoryTotals).map((category) => ({
+    name: category,
+    value: categoryTotals[category],
+  }));
+
+  // ✅ Prepare Data for Bar Chart
+  const barChartData = Object.entries(categoryTotals).map(([category, amount]) => ({
+    category,
+    amount,
+  }));
+
+  console.log("Bar Chart Data:", barChartData); // Debugging
+  
+// ✅ Define colors for Pie Chart
+const colors = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#ff4d4d"];
+  
+
+return (
+  <div className="transaction-container">
+    <h2>Transaction History</h2>
+    <Link to="/addtransaction" className="add-transaction-btn">+ Add Transaction</Link>
+
+    {/* ✅ Export Buttons */}
+    <div className="export-buttons">
+      <button onClick={exportCSV} className="csv-export-btn">📄 Export as CSV</button>
+      <button onClick={exportPDF} className="pdf-export-btn">📑 Export as PDF</button>
+    </div>
+    
+{/* ✅ Filters Section */}
+<div className="filters">
+        <input type="text" placeholder="Search description..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+        
+        <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
+          <option value="All">All Categories</option>
+          <option value="Food">Food</option>
+          <option value="Entertainment">Entertainment</option>
+          <option value="Miscellaneous">Miscellaneous</option>
+        </select>
+
+        <select value={selectedPayment} onChange={(e) => setSelectedPayment(e.target.value)}>
+          <option value="All">All Payment Methods</option>
+          <option value="Card">Card</option>
+          <option value="Cash">Cash</option>
+        </select>
+
+        {/* ✅ Reset Filters Button */}
+        <button onClick={() => {
+          setSearchQuery("");
+          setSelectedCategory("All");
+          setSelectedPayment("All");
+        }}>
+          Reset Filters
+        </button>
+      </div>
+    
+{/* ✅ Transactions Table */}
+<table className="transaction-table">
         <thead>
           <tr>
             <th>Date</th>
@@ -59,27 +349,59 @@ const Transactions = () => {
             <th>Payment Method</th>
             <th>Description</th>
             <th>Status</th>
+            <th>Recurring</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {transactions.length > 0 ? transactions.map((transaction) => (
-            <tr key={transaction._id}>
-              <td>{new Date(transaction.date).toLocaleDateString()}</td>
-              <td>£{transaction.amount}</td>
-              <td>{transaction.category}</td>
-              <td>{transaction.paymentMethod}</td>
-              <td>{transaction.description}</td>
-              <td className={transaction.status === 'Completed' ? 'status-completed' : 'status-pending'}>
-                {transaction.status}
-              </td>
-            </tr>
-          )) : (
+          {filteredTransactions.length > 0 ? (
+            filteredTransactions.map((transaction) => (
+              <tr key={transaction._id} className={recurringTransactions.has(`${transaction.category}-${transaction.amount}`) ? "recurring-transaction" : ""}>
+                <td>{new Date(transaction.date).toLocaleDateString("en-GB")}</td>
+                <td>£{transaction.amount.toFixed(2)}</td>
+                <td>{transaction.category}</td>
+                <td>{transaction.paymentMethod}</td>
+                <td>{transaction.description}</td>
+                <td>{transaction.status}</td>
+                <td>{recurringTransactions.has(`${transaction.category}-${transaction.amount}`) ? "✅ Recurring" : "❌"}</td>
+                <td>
+                  <button onClick={() => editTransaction(transaction)}>✏️ Edit</button>
+                  <button onClick={() => deleteTransaction(transaction._id)}>🗑️ Delete</button>
+                </td>
+              </tr>
+            ))
+          ) : (
             <tr>
-              <td colSpan="6" style={{ textAlign: 'center' }}>No transactions found.</td>
+              <td colSpan="8">No transactions found.</td>
             </tr>
           )}
         </tbody>
       </table>
+    
+{/* ✅ Monthly Spending Bar Chart */}
+{barChartData.length > 0 && (
+        <div className="chart-container">
+          <h3>📉 Monthly Spending by Category</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={barChartData}>
+              <XAxis dataKey="category" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="amount" fill="#82ca9d" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+
+      {/* ✅ AI Insights Section */}
+      {insights && (
+        <div className="ml-insights">
+          <h3>📊 AI-Powered Insights</h3>
+          <p><b>Predicted Spending:</b> £{(insights.prediction || 0).toFixed(2)}</p>
+          <p><b>Top Category:</b> {insights.insights.length > 0 ? insights.insights[0] : "N/A"}</p>
+        </div>
+      )}
     </div>
   );
 };

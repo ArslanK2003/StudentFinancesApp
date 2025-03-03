@@ -1,40 +1,29 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Dashboard.css"; 
-
-import budgetIcon from "../../img/budget-icon.avif";
-import transactionsIcon from "../../img/transactions-icon.png";
-import insightsIcon from "../../img/insights-icon.jpg";
-import goalsIcon from "../../img/goals-icon.jpg";
+import "./Dashboard.css";
+import budgetIcon from "../../assets/img/budget-icon.avif";
+import transactionsIcon from "../../assets/img/transactions-icon.png";
+import insightsIcon from "../../assets/img/insights-icon.jpg";
+import goalsIcon from "../../assets/img/goals-icon.jpg";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [username, setUsername] = useState(""); 
+  const [username, setUsername] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     const storedUsername = localStorage.getItem("username");
 
     if (!token) {
-      navigate("/login"); 
+      navigate("/login");
     } else {
-      setUsername(storedUsername || "User");  
+      setUsername(storedUsername || "User");
     }
   }, [navigate]);
-
-  // ✅ Logout function
-  const handleLogout = () => {
-    localStorage.removeItem("token");  // Clear token
-    localStorage.removeItem("username");  // Clear username
-    navigate("/login");  // Redirect to login page
-  };
 
   return (
     <div className="dashboard-container">
       <h2 className="welcome-text">Hello, {username} 👋</h2>
-
-      {/* 🚀 Add Logout Button */}
-      <button className="logout-btn" onClick={handleLogout}>Logout</button>
 
       <div className="dashboard-grid">
         <div 

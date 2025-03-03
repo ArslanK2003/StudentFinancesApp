@@ -14,7 +14,7 @@
   }
   
   .logo {
-    width: 50px; /* Adjust size */
+    width: 50px;
     height: auto;
   }
   
@@ -34,36 +34,23 @@
     text-decoration: none;
     color: black;
     font-weight: bold;
-    transition: 0.3s;
   }
   
-  .nav-links a:hover, .nav-links .active {
-    color: #007bff; /* Highlight active link */
-  }
-  
-  .settings-logout {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-  
-  .settings-logout a {
-    text-decoration: none;
-    color: black;
+  /* Settings Box */
+  .settings-box {
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    font-size: 16px;
     font-weight: bold;
   }
   
-  .logout-btn {
-    background-color: #dc3545;
-    color: white;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: 0.3s;
+  .settings-box a {
+    text-decoration: none;
+    color: black;
   }
   
-  .logout-btn:hover {
-    background-color: #c82333;
+  .settings-box:hover {
+    background-color: #e0e0e0;
   }
   

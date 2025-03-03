@@ -1,0 +1,94 @@
+.settings-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.settings-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.settings-tabs button {
+    padding: 12px 18px;
+    border: none;
+    border-radius: 8px;
+    background: #ddd;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.settings-tabs button.active {
+    background: #0056b3;
+    color: white;
+}
+
+.settings-tabs button.danger {
+    background: #d9534f;
+    color: white;
+}
+
+.settings-section {
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 12px;
+    margin-top: 20px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.settings-section input {
+    width: 90%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.settings-section button {
+    width: 95%;
+    padding: 12px;
+    margin-top: 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.settings-section button:hover {
+    opacity: 0.9;
+}
+
+.logout-btn {
+    background: #0056b3;
+    color: white;
+}
+
+.reset-btn {
+    background: #ffcc00;
+    color: black;
+}
+
+.danger-zone {
+    background: #ffebee;
+}
+
+.delete-btn {
+    background: #d9534f;
+    color: white;
+}

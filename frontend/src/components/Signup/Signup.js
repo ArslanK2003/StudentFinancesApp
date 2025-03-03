@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "./Signup.css";
-import logo from "../../img/Logo_Text.png";
+import logoText from "../../assets/img/Logo_Text.png";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -47,7 +47,7 @@ const Signup = () => {
   return (
     <div className="signup-container">
       <div className="signup-logo">
-        <img src={logo} alt="SmartSpend Logo" />
+        <img src={logoText} alt="SmartSpend" className="logo-text" /> {/* ✅ Fix Image Path */}
       </div>
       <div className="signup-box">
         <h2>Sign up</h2>
