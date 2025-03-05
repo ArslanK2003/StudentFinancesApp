@@ -7,10 +7,10 @@ import Transactions from "./components/Transactions/Transactions";
 import AddTransaction from "./components/Transactions/AddTransaction";
 import EditTransaction from "./components/Transactions/EditTransaction";
 import Budget from "./components/Budget/Budget"; // ✅ Import Budget Page
+import SetBudget from "./components/Budget/SetBudget"; // ✅ Import Set Budget Page
 import Navbar from "./components/Navbar"; // Import the new Navbar
 import Settings from "./components/Settings/Settings"; // Import Settings
 import "./index.css"; // Ensure global styles are applied
-
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("token"));
@@ -34,6 +34,7 @@ function App() {
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/budget" element={<Budget />} /> {/* ✅ Ensure this exists */}
+                <Route path="/setbudget" element={<SetBudget />} /> {/* ✅ Added Set Budget Page */}
             </Routes>
         </Router>
     );
