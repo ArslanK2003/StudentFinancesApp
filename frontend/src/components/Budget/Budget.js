@@ -16,20 +16,28 @@ const Budget = () => {
       try {
         const response = await fetch(`http://localhost:5001/api/budget?user_id=${userId}`);
         if (!response.ok) throw new Error("Failed to fetch budget data");
-
+  
         const data = await response.json();
+        console.log("📊 Budget Data:", data); // Debugging Line
+  
         setBudget(data.budget);
         setSpent(data.spent);
         setRemaining(data.budget - data.spent);
         setCategories(data.categories);
-        setSpendingTrends(data.spendingTrends);
+  
+        // ✅ Ensure spendingTrends is an array and has valid data
+        const validTrends = Array.isArray(data.spendingTrends)
+          ? data.spendingTrends.filter(item => item.day && item.amount)
+          : [];
+        setSpendingTrends(validTrends);
       } catch (error) {
         console.error("❌ Error fetching budget data:", error);
       }
     };
-
+  
     fetchBudgetData();
-  }, [userId]);
+  }, [userId]);  
+  
 
   const progress = (spent / budget) * 100;
 
@@ -75,16 +83,21 @@ const Budget = () => {
 
       {/* Daily Spending Trends */}
       <h3>📈 Daily Spending Trends</h3>
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={spendingTrends}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="day" label={{ value: "Day of the Month", position: "insideBottom", offset: -5 }} />
-          <YAxis label={{ value: "Spending (£)", angle: -90, position: "insideLeft" }} />
-          <Tooltip />
-          <Legend />
-          <Line type="monotone" dataKey="amount" stroke="#FF5733" strokeWidth={2} dot={{ r: 4 }} />
-        </LineChart>
-      </ResponsiveContainer>
+      {spendingTrends.length > 0 ? (
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={spendingTrends}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="day" label={{ value: "Day of the Month", position: "insideBottom", offset: -5 }} />
+            <YAxis label={{ value: "Spending (£)", angle: -90, position: "insideLeft" }} />
+            <Tooltip />
+            <Legend />
+            <Line type="monotone" dataKey="amount" stroke="#FF5733" strokeWidth={2} dot={{ r: 4 }} />
+          </LineChart>
+        </ResponsiveContainer>
+      ) : (
+        <p className="no-data-message">📉 No spending data available for this month.</p>
+      )}
+
 
       {/* Set Budget for Next Month */}
       <Link to="/setbudget" className="set-budget-btn">Set Budget for Next Month</Link>

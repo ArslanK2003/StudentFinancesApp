@@ -17,33 +17,34 @@ def get_budget():
         return jsonify({"error": "User ID is required"}), 400
 
     try:
-        print(f"🔹 Received user_id: {user_id}")  # ✅ Debugging
+        user_id = ObjectId(user_id)
+        budget_data = budget_collection.find_one({"user": user_id})
 
-        try:
-            user_id_obj = ObjectId(user_id)  # ✅ Convert to ObjectId
-        except Exception as e:
-            print(f"❌ Invalid ObjectId format: {e}")
-            return jsonify({"error": "Invalid user ID format"}), 400
-        
-        budget_data = budget_collection.find_one({"user": user_id_obj})
-        
         if not budget_data:
-            print(f"❌ No budget data found for user {user_id_obj}")
             return jsonify({"error": "No budget data found"}), 404
 
-        print(f"✅ Found budget data: {budget_data}")  # ✅ Debugging
+        # ✅ If spendingTrends is missing or empty, generate dummy data
+        spending_trends = budget_data.get("spendingTrends", [])
+        if not spending_trends:
+            spending_trends = [
+                {"day": 1, "amount": 50},
+                {"day": 2, "amount": 75},
+                {"day": 3, "amount": 30},
+                {"day": 4, "amount": 90},
+                {"day": 5, "amount": 60},
+            ]
 
         response = {
             "budget": budget_data.get("budget", 0),
             "spent": budget_data.get("spent", 0),
             "categories": budget_data.get("categories", []),
-            "spendingTrends": budget_data.get("spendingTrends", [])
+            "spendingTrends": spending_trends,  # ✅ Ensure this is returned
         }
         return jsonify(response)
-    
     except Exception as e:
         print("❌ Error fetching budget data:", str(e))
         return jsonify({"error": str(e)}), 500
+
 
 @app.route("/api/budget", methods=["POST"])
 def save_budget():

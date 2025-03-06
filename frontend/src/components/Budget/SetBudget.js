@@ -33,22 +33,24 @@ const SetBudget = () => {
     setBudget(parseFloat(e.target.value) || 0);
   };
 
-  // ✅ Handle Category Updates
   const handleCategoryChange = (index, field, value) => {
     const updatedCategories = [...categories];
-    updatedCategories[index][field] = parseFloat(value) || 0;
 
-    // Auto-update remaining budget
+    // Ensure numbers are parsed correctly
     if (field === "allocated" || field === "spent") {
+      updatedCategories[index][field] = parseFloat(value) || 0;
       updatedCategories[index]["remaining"] = updatedCategories[index]["allocated"] - updatedCategories[index]["spent"];
+    } else {
+      updatedCategories[index][field] = value; // ✅ Allow text input for names
     }
 
-    setCategories(updatedCategories);
-  };
+  setCategories(updatedCategories);
+};
+
 
   // ✅ Add New Category
   const addCategory = () => {
-    setCategories([...categories, { name: "", allocated: 0, spent: 0, remaining: 0 }]);
+    setCategories([...categories, { name: "", allocated: "", spent: "", remaining: 0 }]);
   };
 
   // ✅ Remove Category

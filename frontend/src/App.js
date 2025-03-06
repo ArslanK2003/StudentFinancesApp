@@ -10,6 +10,8 @@ import Budget from "./components/Budget/Budget"; // ✅ Import Budget Page
 import SetBudget from "./components/Budget/SetBudget"; // ✅ Import Set Budget Page
 import Navbar from "./components/Navbar"; // Import the new Navbar
 import Settings from "./components/Settings/Settings"; // Import Settings
+import Insights from "./components/Insights/Insights";
+import Goals from "./components/Goals/Goals"
 import "./index.css"; // Ensure global styles are applied
 
 function App() {
@@ -35,6 +37,8 @@ function App() {
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/budget" element={<Budget />} /> {/* ✅ Ensure this exists */}
                 <Route path="/setbudget" element={<SetBudget />} /> {/* ✅ Added Set Budget Page */}
+                <Route path="/insights" element={<Insights />} />
+                <Route path="/goals" element={<Goals />} />
             </Routes>
         </Router>
     );
