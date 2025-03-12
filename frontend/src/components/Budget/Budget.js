@@ -23,9 +23,16 @@ const Budget = () => {
         setBudget(data.budget);
         setSpent(data.spent);
         setRemaining(data.budget - data.spent);
-        setCategories(data.categories);
+
+        // ✅ Ensure categories have all required values
+        const updatedCategories = (data.categories || []).map(category => ({
+          ...category,
+          remaining: category.remaining ?? category.allocated - category.spent, // Calculate if missing
+          icon: category.icon ?? getCategoryIcon(category.name) // Assign default icon
+        }));
+        setCategories(updatedCategories);
   
-        // ✅ Ensure spendingTrends is an array and has valid data
+        // ✅ Ensure spendingTrends is valid
         const validTrends = Array.isArray(data.spendingTrends)
           ? data.spendingTrends.filter(item => item.day && item.amount)
           : [];
@@ -37,9 +44,24 @@ const Budget = () => {
   
     fetchBudgetData();
   }, [userId]);  
-  
 
   const progress = (spent / budget) * 100;
+
+  // ✅ Function to Assign Default Icons Based on Category Name
+  const getCategoryIcon = (categoryName) => {
+    const icons = {
+      "Food": "🍔",
+      "Entertainment": "🎮",
+      "Transport": "🚗",
+      "Housing": "🏠",
+      "Health & Wellness": "💊",
+      "Personal Care": "🛀",
+      "Technology": "💻",
+      "Education": "📚",
+      "Miscellaneous": "🔹"
+    };
+    return icons[categoryName] || "❓"; // Default icon if not found
+  };
 
   return (
     <div className="budget-container">
@@ -69,15 +91,21 @@ const Budget = () => {
           </tr>
         </thead>
         <tbody>
-          {categories.map((category, index) => (
-            <tr key={index}>
-              <td>{category.name}</td>
-              <td>£{category.allocated}</td>
-              <td>£{category.spent}</td>
-              <td>£{category.remaining}</td>
-              <td>{category.icon}</td>
+          {categories.length > 0 ? (
+            categories.map((category, index) => (
+              <tr key={index}>
+                <td>{category.name}</td>
+                <td>£{category.allocated}</td>
+                <td>£{category.spent}</td>
+                <td>£{category.remaining}</td>
+                <td>{category.icon}</td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="5" className="no-data-message">⚠️ No budget categories found. Please set your budget.</td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
 
@@ -97,7 +125,6 @@ const Budget = () => {
       ) : (
         <p className="no-data-message">📉 No spending data available for this month.</p>
       )}
-
 
       {/* Set Budget for Next Month */}
       <Link to="/setbudget" className="set-budget-btn">Set Budget for Next Month</Link>

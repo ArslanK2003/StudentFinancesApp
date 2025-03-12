@@ -18,6 +18,7 @@ const Transactions = () => {
   const [selectedTimeRange, setSelectedTimeRange] = useState("30 Days");
   const [currency, setCurrency] = useState(localStorage.getItem("currency") || "GBP");
   const navigate = useNavigate();
+  const [predictedSpending, setPredictedSpending] = useState(null);
 
 // ✅ Fetch User ID
 useEffect(() => {
@@ -50,6 +51,27 @@ useEffect(() => {
   };
   fetchUserId();
 }, [navigate, userId]);
+
+useEffect(() => {
+  const fetchPredictions = async () => {
+    try {
+      const response = await fetch("http://localhost:5002/api/ml/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+
+      setPredictedSpending(data.predicted_spending);
+    } catch (error) {
+      console.error("❌ Error fetching predictions:", error);
+    }
+  };
+
+  fetchPredictions();
+}, [userId]);
 
 // ✅ Fetch Transactions
   useEffect(() => {
@@ -364,7 +386,8 @@ return (
           Reset Filters
         </button>
       </div>
-    
+      <h2>📂 Transactions</h2>
+        
 {/* ✅ Transactions Table */}
 <table className="transaction-table">
         <thead>
@@ -420,13 +443,18 @@ return (
         </div>
       )}
 
-      {/* ✅ AI Insights Section */}
       {insights && (
-        <div className="ml-insights">
+        <div className="insights-container">
           <h3>📊 AI-Powered Insights</h3>
-          <li>📈 <b>Estimated Monthly Spending:</b> {formatAmount(insights.predicted_spending || 0)}</li>
-  <li>📅 {insights.predicted_explanation}</li>
-  <li>⚠️ <b>Potential Overspending:</b> Consider adjusting your budget.</li>
+          <p>🔮 Estimated Monthly Spending: £{insights.predicted_spending}</p>
+          <p>📅 {insights.predicted_explanation}</p>
+          {insights.feedback && insights.feedback.length > 0 && (
+            <ul>
+              {insights.feedback.map((msg, index) => (
+                <li key={index}>⚠️ {msg}</li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
     </div>
