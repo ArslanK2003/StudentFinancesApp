@@ -16,6 +16,7 @@ const Transactions = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedPayment, setSelectedPayment] = useState("All");
   const [selectedTimeRange, setSelectedTimeRange] = useState("30 Days");
+  const [currency, setCurrency] = useState(localStorage.getItem("currency") || "GBP");
   const navigate = useNavigate();
 
 // ✅ Fetch User ID
@@ -300,6 +301,31 @@ useEffect(() => {
 // ✅ Define colors for Pie Chart
 const colors = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#ff4d4d"];
   
+// Update currency when it changes in localStorage
+useEffect(() => {
+  const handleStorageChange = () => {
+    const newCurrency = localStorage.getItem("currency") || "GBP";
+    console.log("Currency updated to:", newCurrency); // Debugging log
+    setCurrency(newCurrency);
+  };
+
+  window.addEventListener("storage", handleStorageChange);
+  return () => {
+    window.removeEventListener("storage", handleStorageChange);
+  };
+}, []);
+
+// Format transaction amount based on currency
+const formatAmount = (amount) => {
+  switch (currency) {
+    case "USD":
+      return `$${amount.toFixed(2)}`;
+    case "EUR":
+      return `€${amount.toFixed(2)}`;
+    default:
+      return `£${amount.toFixed(2)}`;
+  }
+};
 
 return (
   <div className="transaction-container">
@@ -344,7 +370,7 @@ return (
         <thead>
           <tr>
             <th>Date</th>
-            <th>Amount (£)</th>
+            <th>Amount ({currency})</th>
             <th>Category</th>
             <th>Payment Method</th>
             <th>Description</th>
@@ -358,7 +384,7 @@ return (
             filteredTransactions.map((transaction) => (
               <tr key={transaction._id} className={recurringTransactions.has(`${transaction.category}-${transaction.amount}`) ? "recurring-transaction" : ""}>
                 <td>{new Date(transaction.date).toLocaleDateString("en-GB")}</td>
-                <td>£{transaction.amount.toFixed(2)}</td>
+                <td>{formatAmount(transaction.amount)}</td>
                 <td>{transaction.category}</td>
                 <td>{transaction.paymentMethod}</td>
                 <td>{transaction.description}</td>
@@ -398,8 +424,9 @@ return (
       {insights && (
         <div className="ml-insights">
           <h3>📊 AI-Powered Insights</h3>
-          <p><b>Predicted Spending:</b> £{(insights.prediction || 0).toFixed(2)}</p>
-          <p><b>Top Category:</b> {insights.insights.length > 0 ? insights.insights[0] : "N/A"}</p>
+          <li>📈 <b>Estimated Monthly Spending:</b> {formatAmount(insights.predicted_spending || 0)}</li>
+  <li>📅 {insights.predicted_explanation}</li>
+  <li>⚠️ <b>Potential Overspending:</b> Consider adjusting your budget.</li>
         </div>
       )}
     </div>

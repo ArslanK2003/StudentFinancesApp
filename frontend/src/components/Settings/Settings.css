@@ -1,3 +1,4 @@
+/* Main container for settings */
 .settings-container {
     max-width: 600px;
     margin: 50px auto;
@@ -11,6 +12,7 @@
     align-items: center;
 }
 
+/* Tabs for navigation */
 .settings-tabs {
     display: flex;
     justify-content: center;
@@ -38,6 +40,7 @@
     color: white;
 }
 
+/* Settings section */
 .settings-section {
     padding: 20px;
     background: #f9f9f9;
@@ -49,6 +52,7 @@
     align-items: center;
 }
 
+/* Input fields */
 .settings-section input {
     width: 90%;
     padding: 12px;
@@ -58,6 +62,7 @@
     font-size: 14px;
 }
 
+/* Buttons */
 .settings-section button {
     width: 95%;
     padding: 12px;
@@ -74,16 +79,19 @@
     opacity: 0.9;
 }
 
+/* Logout button */
 .logout-btn {
     background: #0056b3;
     color: white;
 }
 
+/* Reset button */
 .reset-btn {
     background: #ffcc00;
     color: black;
 }
 
+/* Danger zone for delete account */
 .danger-zone {
     background: #ffebee;
 }
@@ -91,4 +99,129 @@
 .delete-btn {
     background: #d9534f;
     color: white;
+}
+
+/* 🔥 Improved Save Preferences Button */
+.save-btn {
+    width: 100%;
+    padding: 14px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    background: #28a745;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px; /* Spacing between icon and text */
+}
+
+.save-btn i {
+    font-size: 18px;
+}
+
+.save-btn:hover {
+    opacity: 0.9;
+}
+
+/* 🔥 Preferences Section Styling */
+.preferences-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px; /* Spacing between items */
+    margin-top: 10px;
+}
+
+/* 🔥 Align preference items */
+.preference-item {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Space between label and input */
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* 🔥 Fix label & icon alignment */
+.preference-item label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 🔥 Ensure the icons have spacing */
+.preference-item label i {
+    font-size: 18px;
+    margin-right: 5px;
+}
+
+/* 🔥 Fix checkbox and select spacing */
+.preference-item input[type="checkbox"],
+.preference-item select {
+    margin-left: 50px;
+    transform: scale(1.2); /* Slightly enlarge checkboxes */
+}
+
+/* 🔥 Dark Mode Styles */
+.dark-mode {
+    background-color: #121212 !important;
+    color: white !important;
+}
+
+/* Ensure text remains visible in dark mode */
+.dark-mode h2, 
+.dark-mode h3, 
+.dark-mode label, 
+.dark-mode p {
+    color: white !important;
+}
+
+/* Fix button contrast */
+.dark-mode .settings-tabs button {
+    background: #333 !important;
+    color: white !important;
+}
+
+.dark-mode .settings-tabs button.active {
+    background: #007bff !important;
+    color: white !important;
+}
+
+/* Preferences container background */
+.dark-mode .settings-section {
+    background: #1e1e1e !important;
+    border: 1px solid #333 !important;
+}
+
+/* Form elements */
+.dark-mode input, 
+.dark-mode select {
+    background: #333 !important;
+    color: white !important;
+    border: 1px solid #555 !important;
+}
+
+.dark-mode input::placeholder {
+    color: #bbb !important;
+}
+
+/* Dark mode - Save Preferences Button */
+.dark-mode .save-btn {
+    background: #28a745 !important;
+    color: white !important;
+}
+
+.dark-mode .save-btn:hover {
+    background: #218838 !important;
+}
+
+/* Dark mode - Danger Zone */
+.dark-mode .danger-zone {
+    background: #ffebee !important;
+    color: black !important;
 }

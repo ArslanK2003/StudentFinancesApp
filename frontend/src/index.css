@@ -17,3 +17,98 @@ html, body {
   overflow-y: auto !important;
   height: 100%;
 }
+
+/* 🔥 Global Dark Mode Styles */
+.dark-mode {
+  background-color: #121212 !important;  /* Full black background */
+  color: white !important;
+}
+
+/* Ensure text remains white */
+.dark-mode h1, 
+.dark-mode h2, 
+.dark-mode h3, 
+.dark-mode h4, 
+.dark-mode h5, 
+.dark-mode h6, 
+.dark-mode p, 
+.dark-mode label, 
+.dark-mode span, 
+.dark-mode th, 
+.dark-mode td {
+  color: white !important;
+}
+
+/* Fix form fields */
+.dark-mode input, 
+.dark-mode select, 
+.dark-mode textarea {
+  background: #333 !important;
+  color: white !important;
+  border: 1px solid #555 !important;
+}
+
+.dark-mode input::placeholder,
+.dark-mode textarea::placeholder {
+  color: #bbb !important;
+}
+
+/* Fix buttons */
+.dark-mode button {
+  background: #444 !important;
+  color: white !important;
+  border: 1px solid #666 !important;
+}
+
+.dark-mode button:hover {
+  background: #555 !important;
+}
+
+/* Fix tables */
+.dark-mode table {
+  background: #1e1e1e !important;
+  border-color: #444 !important;
+}
+
+.dark-mode th {
+  background: #333 !important;
+  color: white !important;
+}
+
+.dark-mode td {
+  background: #222 !important;
+  color: white !important;
+}
+
+/* Fix Cards and Sections */
+.dark-mode .card, 
+.dark-mode .section, 
+.dark-mode .box {
+  background: #1e1e1e !important;
+  border: 1px solid #333 !important;
+}
+
+/* Fix Delete Account Section */
+.dark-mode .danger-zone {
+  background: #8b0000 !important;  /* Dark Red */
+  color: white !important;
+}
+
+.dark-mode .danger-zone p {
+  color: white !important;
+}
+
+/* Fix Progress Bars */
+.dark-mode .progress-bar {
+  background: #444 !important;
+}
+
+.dark-mode .progress-bar span {
+  background: #28a745 !important;  /* Green progress */
+}
+
+/* Fix Chart Legends */
+.dark-mode .chart-legend {
+  background: #333 !important;
+  color: white !important;
+}
