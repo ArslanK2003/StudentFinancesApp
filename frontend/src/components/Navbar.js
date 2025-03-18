@@ -1,9 +1,16 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import "./Navbar.css";
 import logo from "../assets/img/logo.png"; // ✅ Corrected path
 
 const Navbar = () => {
+  const location = useLocation(); // 🔍 Get current route
+
+  // ❌ Hide Navbar on these pages
+  if (location.pathname === "/login" || location.pathname === "/signup") {
+    return null;
+  }
+
   return (
     <nav className="navbar">
       <Link to="/dashboard" className="logo-container">
